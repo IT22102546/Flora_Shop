@@ -5,15 +5,15 @@ import jwt from "jsonwebtoken";
 
 export const signup = async (req,res,next)=>{
 
-    const{username,email,password} = req.body;
+    const{username,email,password,adress,mobile} = req.body;
 
-    if(!username || !email || !password || username === "" || email === "" || password === ""){
+    if(!username || !email || !password ||!adress || !mobile|| username === "" || email === "" || password === ""||adress===""||mobile===""){
        next(errorHandler(400,'All fields are required'));
     }
 
    
     const hashedPassword = bcryptjs.hashSync(password,10);
-    const newUSer = new User({username,email,password:hashedPassword});
+    const newUSer = new User({username,email,password:hashedPassword,adress,mobile});
     try{
         await newUSer.save();
         res.status(201).json({message:"User created successfuly"});
@@ -36,7 +36,7 @@ export const signin = async(req,res,next)=>{
     if(!validPassword) return next(errorHandler(400,'Invalid Credentials!'));
     const token = jwt.sign({id:validUser._id , isAdmin:validUser.isAdmin},process.env.JWT_SECRET);
     const{password:hashedPassword, ...rest} = validUser._doc;
-    const expiryDate = new Date(Date.now()+3600000);
+    const expiryDate = new Date(Date.now());
     res.cookie('acess_token',token,{httpOnly:true,expires:expiryDate}).status(200).json(rest);
   }catch(error){
     next(error);
